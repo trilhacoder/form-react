@@ -34,19 +34,15 @@ export default function Home() {
         })
   }
 
-  function cadastrarUsuario(event) {
-    event.preventDefault()
-
-    if (idUsuario == -1) {
-        console.log("Novo usuario:", `${nome} ${email}`)
-        fetch("https://63442914dcae733e8fd8e3e5.mockapi.io/usuarios", {
+  function criarUsuario(nomeUsuarioNovo, emailUsuarioNovo) {
+    fetch("https://63442914dcae733e8fd8e3e5.mockapi.io/usuarios", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            nome: nome,
-            email: email
+            nome: nomeUsuarioNovo,
+            email: emailUsuarioNovo
         })
       })
       .then(function(response) {
@@ -55,40 +51,52 @@ export default function Home() {
           }
           return response.json()
       })
-      .then(function(usuario) {
+      .then(function(usuarioNovo) {
           setNome("")
           setEmail("")
-          setUsuarios([ ...usuarios, usuario ])
+          setUsuarios([ ...usuarios, usuarioNovo ])
       })
       .catch(function(error) {
           console.log(error)
       })
+  }
+
+  function atualizarUsuario(idUsuarioAtu, nomeUsuarioAtu, emailUsuarioAtu) {
+    fetch(`https://63442914dcae733e8fd8e3e5.mockapi.io/usuarios/${idUsuarioAtu}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+                id: idUsuarioAtu,
+                nome: nomeUsuarioAtu,
+                email: emailUsuarioAtu
+            })
+        })
+        .then(function(response) {
+            return response.json()
+        })
+        .then(function(usuarioAtualizado) {
+            setIdUsuario(-1)
+            setNome("")
+            setEmail("")
+            carregarUsuarios()
+        })
+        .catch(function(error) {
+            console.log(error)
+        })
+  }
+
+  function cadastrarUsuario(event) {
+    event.preventDefault()
+
+    if (idUsuario == -1) {
+        console.log("Novo usuario:", `${nome} ${email}`)
+        criarUsuario(nome, email)
     } else {
         console.log("Atualiza usuario:", `${nome} ${email}`)
-        fetch(`https://63442914dcae733e8fd8e3e5.mockapi.io/usuarios/${idUsuario}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                    id: idUsuario,
-                    nome: nome,
-                    email: email
-                })
-            })
-            .then(function(response) {
-                return response.json()
-            })
-            .then(function(usuario) {
-                setIdUsuario(-1)
-                setNome("")
-                setEmail("")
-                carregarUsuarios()
-            })
-            .catch(function(error) {
-                console.log(error)
-            })
-        }      
+        atualizarUsuario(idUsuario, nome, email)     
+    }
   }
 
   function editarUsuario(event) {
@@ -111,7 +119,7 @@ export default function Home() {
     }
 
     fetch(`https://63442914dcae733e8fd8e3e5.mockapi.io/usuarios/${idUsuario}`, {
-		method: 'DELETE'
+		    method: 'DELETE'
         })
         .then(function(response) {
             return response.json()
@@ -121,7 +129,7 @@ export default function Home() {
         })
         .catch(function(error) {
             console.log(error)
-        })
+        })        
   }
 
   function getListaUsuarios() {
@@ -182,3 +190,4 @@ export default function Home() {
     </>
   )
 }
+
