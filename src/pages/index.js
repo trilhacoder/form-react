@@ -159,7 +159,7 @@ export default function Home() {
         </form>
         <form className="mt-5">
             <label htmlFor="busca" className="form-label">Busca</label>
-            <input type="busca" className="form-control" id="nome" value={busca} onChange={event => setBusca(event.target.value)} />
+            <input type="busca" className="form-control" placeholder="Busque pelo nome..." id="nome" value={busca} onChange={event => setBusca(event.target.value)} />
         </form>
         <table className="table table-hover mt-5">
             <thead>
