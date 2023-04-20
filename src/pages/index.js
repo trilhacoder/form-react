@@ -5,8 +5,13 @@ export default function Home() {
   let [ nome, setNome ] = useState("")
   let [ email, setEmail ] = useState("")
   let [ usuarios, setUsuarios ] = useState([])
+  let [ busca, setBusca ] = useState("")
 
-  console.log("renderizou...")
+  let usuariosFiltrados = []
+  if (busca.length > 0) {
+    usuariosFiltrados = usuarios.filter(usuario => usuario.nome.includes(busca))
+    console.log("Usuarios filtrados:", usuariosFiltrados)
+  }
 
   useEffect(() => {
     carregarUsuarios()
@@ -21,7 +26,7 @@ export default function Home() {
             return response.json()
         })
         .then(function(usuarios) {
-            console.log(usuarios)
+            console.log("Carregar usuarios:", usuarios)
             setUsuarios(usuarios)
         })
         .catch(function(error) {
@@ -32,10 +37,8 @@ export default function Home() {
   function cadastrarUsuario(event) {
     event.preventDefault()
 
-    console.log(`cadastrando ${nome} ${email}`)
-
     if (idUsuario == -1) {
-        console.log("novo usuario", idUsuario)
+        console.log("Novo usuario:", `${nome} ${email}`)
         fetch("https://63442914dcae733e8fd8e3e5.mockapi.io/usuarios", {
         method: 'POST',
         headers: {
@@ -53,7 +56,6 @@ export default function Home() {
           return response.json()
       })
       .then(function(usuario) {
-          console.log(usuario)
           setNome("")
           setEmail("")
           setUsuarios([ ...usuarios, usuario ])
@@ -62,7 +64,7 @@ export default function Home() {
           console.log(error)
       })
     } else {
-        console.log("atualizando usuario", idUsuario)
+        console.log("Atualiza usuario:", `${nome} ${email}`)
         fetch(`https://63442914dcae733e8fd8e3e5.mockapi.io/usuarios/${idUsuario}`, {
             method: 'PUT',
             headers: {
@@ -78,7 +80,6 @@ export default function Home() {
                 return response.json()
             })
             .then(function(usuario) {
-                console.log(usuario)
                 setIdUsuario(-1)
                 setNome("")
                 setEmail("")
@@ -96,7 +97,7 @@ export default function Home() {
         idUsuario = event.target.parentElement.dataset.idUsuarioEditar
     }
     let usuario = usuarios.find(usuario => usuario.id == idUsuario)
-    console.log(`editando ${idUsuario} ${usuario.nome} ${usuario.email}`)
+    console.log("Edita usuario:", `${usuario.nome} ${usuario.email}`)
 
     setIdUsuario(usuario.id)
     setNome(usuario.nome)
@@ -116,12 +117,16 @@ export default function Home() {
             return response.json()
         })
         .then(function(usuario) {
-            console.log(usuario)
             carregarUsuarios()
         })
         .catch(function(error) {
-        console.log(error)
-    })
+            console.log(error)
+        })
+  }
+
+  function getListaUsuarios() {
+    if (busca.length > 0) return usuariosFiltrados
+    return usuarios
   }
 
   return (
@@ -144,6 +149,10 @@ export default function Home() {
                 <button type="submit" className="btn btn-primary" onClick={cadastrarUsuario} data-id-usuario-cadastrar={idUsuario}>Cadastrar</button>
             </div>            
         </form>
+        <form className="mt-5">
+            <label htmlFor="busca" className="form-label">Busca</label>
+            <input type="busca" className="form-control" id="nome" value={busca} onChange={event => setBusca(event.target.value)} />
+        </form>
         <table className="table table-hover mt-5">
             <thead>
                 <tr className="d-fex align-middle">
@@ -154,17 +163,19 @@ export default function Home() {
                 </tr>
             </thead>
             <tbody>
-                { usuarios.map((usuario, i) => {
-                    return <tr key={usuario.id} className="align-middle">
-                        <th>{ i + 1 }</th>
-                        <td>{ usuario.nome }</td>
-                        <td>{ usuario.email }</td>
-                        <td className="text-center">
-                            <button className="btn btn-outline-secondary ms-2" data-id-usuario-editar={usuario.id} onClick={editarUsuario}><i className="bi bi-pencil"></i></button>
-                            <button className="btn btn-outline-danger ms-2" data-id-usuario-editar={usuario.id} onClick={excluirUsuario}><i className="bi bi-trash"></i></button>
-                        </td>
-                    </tr>
-                }) }                
+                {
+                    getListaUsuarios().map((usuario, i) => {
+                        return <tr key={usuario.id} className="align-middle">
+                            <th>{ i + 1 }</th>
+                            <td>{ usuario.nome }</td>
+                            <td>{ usuario.email }</td>
+                            <td className="text-center">
+                                <button className="btn btn-outline-secondary ms-2" data-id-usuario-editar={usuario.id} onClick={editarUsuario}><i className="bi bi-pencil"></i></button>
+                                <button className="btn btn-outline-danger ms-2" data-id-usuario-editar={usuario.id} onClick={excluirUsuario}><i className="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                    })
+                }                
             </tbody>
         </table>
     </main>
